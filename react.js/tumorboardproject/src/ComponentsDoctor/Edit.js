@@ -2,30 +2,25 @@ import react from 'react';
 import SpringApiUrl from '../services/UserServiceApi';
 import SpringApiDocsListUrl from '../services/DoctorsList';
 import SpringPatientsListApiUrl from '../services/PatientsList';
+import SpringTodaysTBApiUrl from '../services/TodaysTBList' ;
 import './Tumor.css';
-import dateFormat from 'dateformat';
 //import axios from 'axios';
 import DatePicker from 'react-datetime';
 import moment from 'moment-timezone';
 import 'react-datetime/css/react-datetime.css';
 import ReactSearchBox from 'react-search-box';
+import Patient from '../Componentspatient/Patientinterface';
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import axios from 'axios';
 
-//https://stackoverflow.com/questions/56017457/react-select-multi-select-check-box-with-select-all
-// <--input name="patientIdFk" type="text" id="patientIdFk" value={this.state.patientIdFk} onChange={this.handleInputChange} onKeyPress={this.onKeyUp} /-->
-
-
-class Tumorboard extends react.Component {
-
-
-    // const [dt, setDt] = useState(moment());
+class Edit extends react.Component {
 
     constructor(props) {
-
         var abc = "yes";
         super(props)
         this.state = {
             result: [],
+            todaysTBList:[],
             docsList: [],
             patientsList: [],
             threcords: [],
@@ -37,13 +32,11 @@ class Tumorboard extends react.Component {
             mode: "VIDEO",
             location: "",
             video_link: "",
-            status: "REQUESTED",
+            status: "COMPLETED",
             priority: 3,
             frequency_in_days: 0,
-            //notes :$("#videoLink").val(),
             inserted_time: "2018-06-06 12:12:12",
             updated_time: "2018-06-06 12:12:12",
-
             patientIdFk: "",
             presenting_doc: "",
             attending_doc: [],
@@ -52,41 +45,23 @@ class Tumorboard extends react.Component {
             patient: "present",
             display: "none",
             videolinkdisabled: false,
-            values: [],
-            tasks: []
+            values: []
 
         };
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleChangeAttendingDoc = this.handleChangeAttendingDoc.bind(this);
-        this.patientChange = this.patientChange.bind(this);
-         this.handleDeleteRow = this.handleDeleteRow.bind(this);
-
     }
 
-
-handleDeleteRow(i) {
-    let rows = [this.state.rows]
-    rows.splice(i);
-    this.setState({ 
-      rows: rows
-    })
-    alert('hello')
-  }
     Changedate = (event) => {
         this.setState({
             start_time: event
         });
     };
 
-
-
     handleInputChange(event) {
-
         const target = event.target;
-        // alert("name:"+target.name) ;
-        const value = target.value;
+         const value = target.value;
         const name = target.name;
-        // alert(target + "  "+ name + "   "+value);
         if ((name == "mode") && (value != "VIDEO")) {
             this.setState({ videolinkdisabled: true })
         } else if ((name == "mode") && (value == "VIDEO")) {
@@ -108,10 +83,13 @@ handleDeleteRow(i) {
         this.setState({ attending_doc: value });
     }
 
-
-
-
     componentDidMount() {
+        
+        //alert( this.props.location.state.tbid);
+       
+        var x =  this.props.location.state.tbid;
+        this.setState({tbid:this.props.location.state.tbid})
+        
         SpringApiUrl.getApi().then((response) => {
             this.setState({ result: response.data })
         });
@@ -123,9 +101,29 @@ handleDeleteRow(i) {
         SpringPatientsListApiUrl.getApi().then((response) => {
             this.setState({ patientsList: response.data })
         });
+        
+        SpringTodaysTBApiUrl.getApi().then((response) => {
+            this.setState({ todaysTBList: response.data })
+        });
+       axios.get('https://tumorboard-308606.el.r.appspot.com/getTumorboardDetails?tbid='+ x)
+        .then(res => {
+          const pdetails = res.data;
+          this.setState({ tbtype: pdetails.name })
+          this.setState({ duration: pdetails.duration })
+          this.setState({ purpose: pdetails.purpose })
+          this.setState({ start_time: pdetails.start_time })
+          this.setState({ mode: pdetails.mode })
+          this.setState({ video_link: pdetails.video_link })
+          this.setState({ status: pdetails.status })
+          this.setState({ location: pdetails.location })
+          this.setState({ frequency_in_days: pdetails.frequency_in_days })
+          this.setState({ presenting_doc: pdetails.presenting_doc })
+          this.setState({ attending_doc: pdetails.attending_doc })
+          this.setState({ patientname: pdetails.patientname })
 
-
+        })
     }
+    
 
     activateMenuItem(id) {
         const div = document.getElementById(id);
@@ -137,89 +135,36 @@ handleDeleteRow(i) {
         document.getElementById("notification").classList.remove('active');
         document.getElementById("abc").classList.remove('active');
         div.classList.add('active');
-
-        var activeTab = 'tab' + id;
-        //  alert("activeTab: " + activeTab);
-        document.getElementById("tablistTB").style.display = "none";
-        document.getElementById("tabcreateTB").style.display = "none";
-        document.getElementById("tabnotification").style.display = "none";
-
-        document.getElementById(activeTab).style.display = "block";
-
+    
     };
-
-    patientChange = event => {
-        //alert(event) ;
-        //   if (event.charCode === 13) {
-        this.setState({ patientIdFk: event });
-        //  }
-        // {this.setState({name: data.cancertype});}
-        fetch('https://tumorboard-308606.el.r.appspot.com/getPatientDetailsByID?id=' + event)
-            .then(response => response.json())
-            .then((data) => {
-                { this.setState({ tbtype: data.cancertype }); 
-            this.setState({ presenting_doc: data.owning_doctor});}
-
-                console.log("Patient name,type: " + data.name + "" + data.cancertype)
-                
-                // document.getElementById("alertText").style.display = "none";
-            })
-            .catch(e => {
-                console.log("error: " + e);
-                alert("This Patient ID does not exist in the system");
-                this.setState({ patientIdFk: 0 });
-                this.setState({ tbtype: "General" });
-                //   document.getElementById("alertText").style.display = "block";
-                // this.setState({...this.state, isFetching: false});
-            });
-    };
-
-
 
     handleSubmit = event => {
-        //   alert("id:" + this.state.patientIdFk);
-
-        if (this.state.patientIdFk == 0) {
-            alert("Please enter a valid Patient ID !!");
-            return;
-        }
-
-
-        if (this.state.patientIdFk == "") {
-            alert("Please enter Patient ID !!");
-            return;
-        }
 
         if ((this.state.mode == "VIDEO") && (this.state.video_link == "")) {
             alert("Please enter link for Video Conference !!");
             return;
         }
-
         event.preventDefault();
         const requestOptions = {
-            method: 'POST',
+            method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            name: this.state.tbtype,
-            patientIdFk: this.state.patientIdFk,
-            mode: this.state.mode,
-            status: "REQUESTED",
-            purpose: this.state.purpose,
+            name:this.state.tbtype,
+            purpose:this.state.purpose,
             start_time: this.state.start_time,
-            requested_time: this.state.start_time,
-            end_time: "2025-12-12 12:12:12",
             duration: this.state.duration,
+            mode: this.state.mode,
             location: this.state.location,
             video_link: this.state.video_link,
-            priority: this.state.priority,
+            status: this.state.status,
+            purpose: this.state.purpose,
             frequency_in_days: this.state.frequency_in_days,
-            inserted_time: "2018-06-06 12:12:12",
-            updated_time: "2018-06-06 12:12:12",
             presenting_doc: this.state.presenting_doc,
-            attending_doc: this.state.attending_doc.toString()
+            attending_doc: this.state.attending_doc.toString(),
+            
         }
-
-        fetch('https://tumorboard-308606.el.r.appspot.com/trial', {
-            method: "POST",
+            
+        fetch('https://tumorboard-308606.el.r.appspot.com/update/' + this.state.tbid, {
+            method: "PUT",
             body: JSON.stringify(requestOptions),
             headers: { "Content-type": "application/json; charset=UTF-8", "Access-Control-Allow-Origin": "*" }
         })
@@ -229,7 +174,7 @@ handleDeleteRow(i) {
                     throw new Error(response.status);
                 }
                 else {
-                    alert("TumorBoard Creation Complete");
+                    alert("TumorBoard Updated");
                     return;
                 }
             })
@@ -237,34 +182,32 @@ handleDeleteRow(i) {
         //.catch(err => console.log(err)); 
     };
 
-    
-
     render() {
-
-              // disable past dates
+        // disable past dates
         const yesterday = moment().subtract(1, 'day');
         const disablePastDt = current => {
             return current.isAfter(yesterday);
         };
 
-        const customDates = ['22-04-2021', '22-04-2021', '22-04-2021'];
+        const customDates = ['2021-04-22', '2021-04-25', '2021-04-26'];
         const disableCustomDt = current => {
-            return customDates.includes(current.format('DD-MM-YYYY'));
+            return !customDates.includes(current.format('YYYY-MM-DD'));
         }
-        
+
+
         return (
             <div>
                 <div id="header" style={{ background: '#eee' }}>
                  
           <div id="sub_header">
             <div id="header_sec_1">
-                <img src="/mainlogo.png" alt="My logo" />
+                    <img src="/mainlogo.png" alt="My logo" />
             </div>
             <div id="header_sec_2">
               <div id="header_buttons">
-                <Link to="/tumorboardinterface"><button id="tumorboard">Tumorboard</button></Link>
-                <Link to="/patient/id:"><button id="patients">Patients</button></Link>
-              </div>
+               <Link to="/doctor"><button id="back">Home</button></Link>
+            
+                </div>
             </div>
             <div id="header_sec_3">
               <i className="fas fa-user" />
@@ -272,17 +215,12 @@ handleDeleteRow(i) {
           </div>
         
                 </div>
+        
                 <div className="container" style={{ width: '100%', display: 'flex', maxWidth: '1800px', background: '#eee' }}>
-                    <div id="first_row">
-                        <div className="neumorphic-card active" onClick={() => this.activateMenuItem("listTB")} id="listTB"><i className="fas fa-columns" /></div>
-                        <div className="neumorphic-card" onClick={() => this.activateMenuItem("createTB")} id="createTB"><i className="fas fa-plus-square" /></div>
-                        <div className="neumorphic-card" onClick={() => this.activateMenuItem("notification")} id="notification"><i className="fas fa-calendar-check" /></div>
-                        <div className="neumorphic-card" onClick={() => this.activateMenuItem("abc")} id="abc"><i className="fas fa-cogs" /></div>
-                    </div>
+                   
                     <div id="content_div">
-                        <div id="tabcreateTB" style={{ display: "none" }}>
-
-                            <div id="content_header"><h3>Create New Tumorboard</h3></div>
+                       <div id="tabnotification"  style={{ }}>
+                        <div id="content_header"><h3>Edit Tumorboard</h3></div>
                             <div
                                 id="container"
                                 className="theme theme_font_neoskeuo theme_space_neoskeuo theme_color_neoskeuo"
@@ -294,25 +232,7 @@ handleDeleteRow(i) {
                                         <div>
 
                                             <div style={{ display: "flex" }}>
-                                                <div className="w_sec w_sec_select_50">
-                                                    <h5>Patient ID/Mobile No*</h5>
-                                                    <div>
-                                                    <ReactSearchBox 
-                                                    //style={{borderRadius: '20px', paddingTop: '48px'}}
-                                                        type="text" name="patientIdFk"
-                                                        placeholder="Search for Patient ID" 
-                                                        data={this.state.patientsList}
-                                                        onSelect={record => console.log("selected:" + record)}
-                                                        onFocus={() => {
-                                                            console.log('This function is called when is focussed')
-                                                        }}
-                                                        onChange={this.patientChange}
-                                                        fuseConfigs={{
-                                                            threshold: 0.05,
-                                                        }}
-                                                    />
-                                                    </div>
-                                                </div>
+                                                
 
                                                 <div className="w_sec w_sec_select_50">
                                                     <h5>Location</h5>
@@ -329,24 +249,18 @@ handleDeleteRow(i) {
                                     <section>
                                         <div style={{ display: "flex" }}>
                                             <div className="w_sec w_sec_select_50">
-                                                <h5>Date*</h5> 
-                                                
-                                                <DatePicker  id="start_time" name="start_time" 
-                                                value={this.state.start_time} 
-                                                dateFormat={"DD-MM-YYYY"}
-                                                isValidDate={disablePastDt} 
-                                                minDate={new Date(27,4,2021)} 
-                                               // minDate={(new Date()).toLocaleDateString('en-US', customDates)}
-                                                onChange={this.Changedate} />
+                                                <h5>Date*</h5>
 
+                                                <DatePicker id="start_time" name="start_time" value={this.state.start_time} isValidDate={disablePastDt} minDate={new Date(2021, 4, 27)} onChange={this.Changedate} />
                                             </div>
+
                                             <div className="w_sec w_sec_select_50">
-                                                <h5>In Minutes</h5>
+                                                <h5>Duration</h5>
                                                 <select className="select" id="duration" name="duration" value={this.state.duration} onChange={this.handleInputChange}>
+                                                    <option>In Minutes</option>
                                                     <option value={"15"}>15</option>
                                                     <option selected value={"30"}>30</option>
                                                     <option value={"45"}>45</option>
-                                                    <option value={"45"}>60</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -419,7 +333,7 @@ handleDeleteRow(i) {
                                             }
                                         </select>
                                     </div>
-                                   
+
                                     <div className="w_sec w_sec_select_50" style={{ width: '75%' }}>
                                         <h5>Attending Doctors*</h5>
                                         <select className="select" style={{ width: '300px' }} id="attending_doc" name="attending_doc" multiple={true} value={this.state.attending_doc} onChange={this.handleChangeAttendingDoc}>
@@ -437,9 +351,8 @@ handleDeleteRow(i) {
                                         <select className="select" id="frequency_in_days" name="frequency_in_days" value={this.state.frequency_in_days} onChange={this.handleInputChange}>
                                             <option value={0}>None</option>
                                             <option value={30}>Monthly</option>
-                                            <option value={180}>Quarterly</option>
-                                            <option value={120}>Half-Yearly</option>
-                                            <option value={120}>Annual</option>
+                                            <option value={180}>Bi-Annual</option>
+                                            <option value={120}>Tri-Annual</option>
                                         </select>
                                     </div>
                                 </div>
@@ -448,87 +361,8 @@ handleDeleteRow(i) {
                                 <button onClick={this.handleSubmit}>Submit</button>
                             </div>
 
-                        </div>
-                        <div id="tablistTB">
-                            <div id="content_header">
-                                <h3 className="text-left">TumorBoard meetings</h3>
-                                <table class="table shadow-soft rounded">
-                                    <thead>
-                                        <tr style={{  fontWeight: "bolder", color: "#3498DB" }}>
-                                             <td scope="row"> Type </td>
-                                            <td scope="row"> PId/Name </td>
-                                            <td scope="row"> Date&Time </td>
-                                            <td scope="row"> Presenting Doctor </td>
-                                            <td scope="row"> Purpose </td>
-                                            <td scope="row">Join Meeting </td>
-                                            <td scope="row"> Presentation </td>
-                                            <td scope="row"> AI Opinion </td>
-                                            <td scope="row"> Status </td>
-                                            <td scope="row">Details</td>
-                                              </tr>
+                        
 
-                                    </thead>
-                                    <tbody style={{ fontWeight: "bold" }}>
-                                        {
-                                            this.state.result.map((
-                                                user) =>
-                                                    <tr key={user.tbid}>
-                                                         <td> {user.name}</td>
-                                                        <td> {user.patientIdFk}/{user.patientname}</td>
-                                                        <td> {user.start_time,dateFormat(user.start_time, "mmmm dS , hh:mm TT")}</td>
-                                                        <td> {user.doctorName}</td>
-                                                        <td> {user.purpose}</td>
-                                                         <td style={{ contentAlign: "center", paddingLeft: "50px" }}><a href={user.video_link} target="_blank"> {user.video_link != "" && <i class="fa fa-video-camera" aria-hidden="true"></i>}</a></td>
-                                                        <td> {user.presentationlink}</td>
-                                                        <td> {user.aiopinionlink}</td>
-                                                        <td> {user.status}</td>
-                                                        <td style={{ contentAlign: "center", paddingLeft: "50px" }}><i class="fa fa-info-circle" style={{ color: "blue" }} aria-hidden="true"></i></td>
-                                                        {/* <td><button onClick={this.handleDeleteRow}>Delete</button></td> */}
-                                                    </tr>
-                                            )
-                                        }
-
-                                    </tbody>
-                                </table>
-
-                            </div>
-
-
-
-                        </div>
-
-                        <div id="tabnotification" style={{ display: "none" }}>
-                            <div id="content_header">
-                                <h3 className="text-left">Notification</h3>
-                            </div>
-                            <table class="table shadow-soft rounded">
-                                <thead>
-                                    <tr>
-                                        <td scope="row">
-                                            <b> Patient ID </b>
-                                        </td>
-                                        <td scope="row">
-                                            <b> Tumor Board </b>
-                                        </td>
-                                        <td scope="row">
-                                            <b> Date&Time </b>
-                                        </td>
-                                        <td scope="row">
-                                            <b> Assigned By</b>
-                                        </td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {this.state.result.map((user) => (
-                                        <tr key={user.tbid}>
-                                            <td> {user.tbid}</td>
-                                            <td> {user.name}</td>
-                                            <td> {user.start_time, dateFormat(user.start_time, "mmmm dS yy, hh:mm TT")}</td>
-                                            <td> </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
                         </div>
                         <div id="tababc"></div>
                     </div>
@@ -540,6 +374,6 @@ handleDeleteRow(i) {
 }
 
 
-export default Tumorboard;
+export default Edit;
 
 

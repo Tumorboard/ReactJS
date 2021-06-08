@@ -10,17 +10,22 @@
     "axios": "^0.21.1",
     "bootstrap": "^5.0.0",
     "cra-template": "1.1.2",
+    "dateformat": "^4.5.1",
     "font-awesome": "^4.7.0",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.33",
     "multiselect-react-dropdown": "^1.6.11",
     "react": "^17.0.2",
+    "react-datepicker": "^3.8.0",
     "react-datetime": "^3.0.4",
     "react-dom": "^17.0.2",
     "react-multiselect-checkboxes": "^0.1.1",
+    "react-native-search-bar": "^3.5.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
-    "react-search-box": "^2.0.2"
+    "react-search-bar": "^2.2.0",
+    "react-search-box": "^2.0.2",
+    "react-search-field": "^1.2.1"
   },
   "scripts": {
     "start": "react-scripts start -p 8080",
@@ -28,7 +33,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "gcp-build": "npm run build",
-    "deploy": "gcloud config set project tumorboard && gcloud app deploy app.yaml --version=0-1-0"
+    "deploy": "gcloud config set project tumorboard-beta && gcloud app deploy app.yaml --version=0-1-0"
   },
   "eslintConfig": {
     "extends": [

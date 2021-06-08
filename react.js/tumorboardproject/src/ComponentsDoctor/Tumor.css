@@ -9,15 +9,6 @@
   float: left;
   padding: 5px 20px;
 }
-@media screen and (max-width: 320px) { 
-
-/*Write your css here*/
-
-}
-
-@media screen and (max-width: 800px) { 
-
-}
 #sub_header {
   width: 100%;
   margin: auto;
@@ -239,7 +230,6 @@ body {
   --color-light: 255, 255, 255;
   --color-glow: 0, 150, 255;
 }
-
 button,
 input {
   border: 0;
@@ -297,7 +287,6 @@ input {
   line-height: 60px;
   appearance: none;
 }
-
 input {
   width: 75%;
   margin-right: 8px;
@@ -308,22 +297,15 @@ input {
   -webkit-appearance: none;
   color: #777;
 }
-.ReactSearchBox {
-    font-size: 14px;
-    padding: 10px 20px;
-    height: 61px;
-    border: 1px solid #cacaca96;
-    border-radius: 44px;
-    color: #000;
-}
-.Datepicker {
-  width: 100%;
-  font-size: 14px;
-    padding: 10px 20px;
-    height: 61px;
-    border: 1px solid #cacaca96;
-    border-radius: 44px;
-    color: #000;
+Datepicker {
+  width: 75%;
+  margin-right: 8px;
+  box-shadow: inset 2px 2px 5px #babecc, inset -5px -5px 10px #fff;
+  box-sizing: border-box;
+  transition: all 0.2s ease-in-out;
+  appearance: none;
+  -webkit-appearance: none;
+  color: #777;
 }
 input:focus {
   box-shadow: inset 1px 1px 2px #babecc, inset -1px -1px 2px #fff;
@@ -336,3 +318,16 @@ input:focus {
   border-radius: 5px;
   margin: 0.5em;
 }
+textarea {
+         
+	margin: 20px;
+	box-shadow: inset 2px 2px 5px #babecc, inset -5px -5px 10px #fff;
+	box-sizing: border-box;
+	transition: all 0.2s ease-in-out;
+	appearance: none;
+	-webkit-appearance: none;
+	color:#777;
+	border-radius: 20px;
+	border-color: lightgray;
+
+	}

@@ -1,32 +1,24 @@
-import react from 'react';
+  import react from 'react';
 import SpringApiUrl from '../services/UserServiceApi';
 import SpringApiDocsListUrl from '../services/DoctorsList';
 import SpringPatientsListApiUrl from '../services/PatientsList';
-//Gimport './Tumor.css';
-//import axios from 'axios';
+import SpringTodaysTBApiUrl from '../services/TodaysTBList' ;
+import './Tumor.css';
+import dateFormat from 'dateformat';
 import DatePicker from 'react-datetime';
 import moment from 'moment-timezone';
 import 'react-datetime/css/react-datetime.css';
-//import ReactMultiSelectCheckboxes from 'react-multiselect-checkboxes';
-import { Multiselect } from 'multiselect-react-dropdown';
-import Select from "react-select";
 import ReactSearchBox from 'react-search-box';
-
-//https://stackoverflow.com/questions/56017457/react-select-multi-select-check-box-with-select-all
-// <--input name="patient_id_fk" type="text" id="patient_id_fk" value={this.state.patient_id_fk} onChange={this.handleInputChange} onKeyPress={this.onKeyUp} /-->
-
+import Patient from '../Componentspatient/Patientinterface';
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 
 class Doctor extends react.Component {
-
-
-    // const [dt, setDt] = useState(moment());
-
     constructor(props) {
-
         var abc = "yes";
         super(props)
         this.state = {
             result: [],
+            todaysTBList:[],
             docsList: [],
             patientsList: [],
             threcords: [],
@@ -41,11 +33,9 @@ class Doctor extends react.Component {
             status: "REQUESTED",
             priority: 3,
             frequency_in_days: 0,
-            //notes :$("#videoLink").val(),
             inserted_time: "2018-06-06 12:12:12",
             updated_time: "2018-06-06 12:12:12",
-
-            patient_id_fk: "",
+            patientIdFk: "",
             presenting_doc: "",
             attending_doc: [],
             patientName: "",
@@ -54,15 +44,11 @@ class Doctor extends react.Component {
             display: "none",
             videolinkdisabled: false,
             values: []
-
         };
+
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleChangeAttendingDoc = this.handleChangeAttendingDoc.bind(this);
-        this.patientChange = this.patientChange.bind(this);
-
     }
-
-
 
     Changedate = (event) => {
         this.setState({
@@ -70,15 +56,10 @@ class Doctor extends react.Component {
         });
     };
 
-
-
     handleInputChange(event) {
-
         const target = event.target;
-        // alert("name:"+target.name) ;
         const value = target.value;
         const name = target.name;
-        // alert(target + "  "+ name + "   "+value);
         if ((name == "mode") && (value != "VIDEO")) {
             this.setState({ videolinkdisabled: true })
         } else if ((name == "mode") && (value == "VIDEO")) {
@@ -100,9 +81,6 @@ class Doctor extends react.Component {
         this.setState({ attending_doc: value });
     }
 
-
-
-
     componentDidMount() {
         SpringApiUrl.getApi().then((response) => {
             this.setState({ result: response.data })
@@ -115,7 +93,10 @@ class Doctor extends react.Component {
         SpringPatientsListApiUrl.getApi().then((response) => {
             this.setState({ patientsList: response.data })
         });
-
+        
+        SpringTodaysTBApiUrl.getApi().then((response) => {
+            this.setState({ todaysTBList: response.data })
+        });
 
     }
 
@@ -131,31 +112,34 @@ class Doctor extends react.Component {
         div.classList.add('active');
 
         var activeTab = 'tab' + id;
-        //  alert("activeTab: " + activeTab);
-        document.getElementById("tablistTB").style.display = "none";
         document.getElementById("tabcreateTB").style.display = "none";
-
+        document.getElementById("tabtodaylistTB").style.display = "none";
+        document.getElementById("tabnotification").style.display = "none";
         document.getElementById(activeTab).style.display = "block";
 
     };
 
-    patientChange = event => {
+   
+ patientChange = event => {
         //alert(event) ;
         //   if (event.charCode === 13) {
-        this.setState({ patient_id_fk: event });
+        this.setState({ patientIdFk: event });
         //  }
         // {this.setState({name: data.cancertype});}
-        fetch('http://localhost:8080/cancerMoonshot/getPatientDetailsByID?id=' + event)
+        fetch('https://tumorboard-308606.el.r.appspot.com/getPatientDetailsByID?id=' + event)
             .then(response => response.json())
             .then((data) => {
-                { this.setState({ tbtype: data.cancertype }); }
+                { this.setState({ tbtype: data.cancertype }); 
+            this.setState({ presenting_doc: data.owning_doctor});}
+
                 console.log("Patient name,type: " + data.name + "" + data.cancertype)
+                
                 // document.getElementById("alertText").style.display = "none";
             })
             .catch(e => {
                 console.log("error: " + e);
                 alert("This Patient ID does not exist in the system");
-                this.setState({ patient_id_fk: 0 });
+                this.setState({ patientIdFk: 0 });
                 this.setState({ tbtype: "General" });
                 //   document.getElementById("alertText").style.display = "block";
                 // this.setState({...this.state, isFetching: false});
@@ -163,17 +147,16 @@ class Doctor extends react.Component {
     };
 
 
-
     handleSubmit = event => {
-        //   alert("id:" + this.state.patient_id_fk);
+        //   alert("id:" + this.state.patientIdFk);
 
-        if (this.state.patient_id_fk == 0) {
+        if (this.state.patientIdFk == 0) {
             alert("Please enter a valid Patient ID !!");
             return;
         }
 
 
-        if (this.state.patient_id_fk == "") {
+        if (this.state.patientIdFk == "") {
             alert("Please enter Patient ID !!");
             return;
         }
@@ -188,7 +171,7 @@ class Doctor extends react.Component {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             name: this.state.tbtype,
-            patient_id_fk: this.state.patient_id_fk,
+            patientIdFk: this.state.patientIdFk,
             mode: this.state.mode,
             status: "REQUESTED",
             purpose: this.state.purpose,
@@ -206,7 +189,7 @@ class Doctor extends react.Component {
             attending_doc: this.state.attending_doc.toString()
         }
 
-        fetch('http://localhost:8080/cancerMoonshot/trial', {
+        fetch('https://tumorboard-308606.el.r.appspot.com/trial', {
             method: "POST",
             body: JSON.stringify(requestOptions),
             headers: { "Content-type": "application/json; charset=UTF-8", "Access-Control-Allow-Origin": "*" }
@@ -225,16 +208,9 @@ class Doctor extends react.Component {
         //.catch(err => console.log(err)); 
     };
 
-
-
-  
-
-  
-
+    
     render() {
 
-
-        // disable past dates
         const yesterday = moment().subtract(1, 'day');
         const disablePastDt = current => {
             return current.isAfter(yesterday);
@@ -245,11 +221,24 @@ class Doctor extends react.Component {
             return !customDates.includes(current.format('YYYY-MM-DD'));
         }
 
-
         return (
             <div>
                 <div id="header" style={{ background: '#eee' }}>
-
+                 
+          <div id="sub_header">
+            <div id="header_sec_1">
+                    <img src="/mainlogo.png" alt="My logo" />
+            </div>
+            <div id="header_sec_2">
+              <div id="header_buttons">
+               
+                </div>
+            </div>
+            <div id="header_sec_3">
+              <i className="fas fa-user" />
+            </div>
+          </div>
+        
                 </div>
                 <div className="container" style={{ width: '100%', display: 'flex', maxWidth: '1800px', background: '#eee' }}>
                     <div id="first_row">
@@ -261,7 +250,91 @@ class Doctor extends react.Component {
                     <div id="content_div">
                         <div id="tabcreateTB" style={{ display: "none" }}>
 
-                            <div id="content_header"><h3>Create New Tumorboard</h3></div>
+                        <div id="content_header">
+                                <h3 className="text-left">TumorBoard Meetings</h3>
+                                <table class="table shadow-soft rounded">
+                                    <thead>
+                                        <tr style={{  fontWeight: "bolder", color: "#3498DB" }}>
+                                            <td scope="row"> tbid </td>
+                                            <td scope="row"> Type </td>
+                                            <td scope="row"> PID/Name </td>
+                                            <td scope="row"> Date & Time </td>
+                                            <td scope="row"> Presenting Doctor </td>
+                                            <td scope="row">Join Meeting </td>
+                                            <td scope="row"> Presentation </td>
+                                            <td scope="row"> Status </td>
+                                            <td scope="row"> AI Opinion </td>
+                                            <td scope="row"> Conclusion </td>
+                                            <td scope="row">Details</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody style={{ fontWeight: "bold" }}>
+                                        {
+                                            this.state.result.map(
+                                                user =>
+                                                    <tr key={user.tbid}>
+                                                        <td> {user.tbid}</td>
+                                                        <td> {user.name}</td>
+                                                        <td ><Link to={{pathname:'/patient/'+ user.patientIdFk ,state: { patientID: user.patientIdFk } }} className="btn btn-primary">{user.patientIdFk}/{user.patientname}</Link></td>
+                                                         <td> {user.start_time,dateFormat(user.start_time, "mmmm dS , hh:mm TT")}</td>
+                                                        <td> {user.doctorName}</td>
+                                                         <td style={{ contentAlign: "center", paddingLeft: "50px" }}><a href={user.video_link} target="_blank"> {user.video_link != "" && <i class="fa fa-video-camera" aria-hidden="true"></i>}</a></td>
+                                                        <td> {user.presentationlink}</td>
+                                                        <td> {user.status}</td>
+                                                        <td> {user.aiopinionlink}</td>
+                                                        <td > <Link to="/conclusion" ><button id="conclusion"><p style={{color: "blue"}}>Conclusion</p></button></Link></td>
+                                                        <td style={{ contentAlign: "center", paddingLeft: "30px" , paddingTop: "30px" }}><Link to= {{ pathname: '/Tumorboarddetails', state: { tbid: user.tbid } }}><i class="fa fa-info-circle" style={{ color: "blue" }} aria-hidden="true"></i></Link></td> </tr>
+                                            )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="tabtodaylistTB" >
+                            <div id="content_header">
+                                <h3 className="text-left">Today's TumorBoard Meetings</h3>
+                                <table class="table shadow-soft rounded">
+                                    <thead>
+                                        <tr style={{  fontWeight: "bolder", color: "#3498DB" }}>
+                                            <td scope="row"> tbid </td>
+                                            <td scope="row"> Type </td>
+                                            <td scope="row"> PatientID/Name </td>
+                                            <td scope="row"> Date & Time </td>
+                                            <td scope="row"> Presenting Doctor </td>
+                                            <td scope="row"> Purpose </td>
+                                            <td scope="row">Join Meeting </td>
+                                            <td scope="row"> Presentation </td>
+                                            <td scope="row"> Status </td>
+                                            <td scope="row"> AI Opinion </td>
+                                            <td scope="row"> Conclusion </td>
+                                            <td scope="row">Details</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody style={{ fontWeight: "bold" }}>
+                                        {
+                                            this.state.todaysTBList.map(
+                                                user =>
+                                                    <tr key={user.tbid}>
+                                                        <td> {user.tbid}</td>
+                                                        <td> {user.name}</td>
+                                                        <td><Link to={{ pathname: '/patient', state: { patientID: user.patientIdFk } }} className="btn btn-primary"> {user.patientIdFk}/{user.patientname}</Link></td>
+                                                        <td> {user.start_time,dateFormat(user.start_time, "mmmm dS , hh:mm TT")}</td>
+                                                        <td> {user.doctorName}</td>
+                                                        <td> {user.purpose}</td>
+                                                        <td style={{ contentAlign: "center", paddingLeft: "50px" }}><a href={user.video_link} target="_blank"> {user.video_link != "" && <i class="fa fa-video-camera" aria-hidden="true"></i>}</a></td>
+                                                        <td> {user.presentationlink}</td>
+                                                        <td> {user.status}</td>
+                                                        <td> {user.aiopinionlink}</td>
+                                                        <td > <Link to="/conclusion" ><button id="conclusion"><p style={{color: "blue"}}>Conclusion</p></button></Link></td>
+                                                       <td style={{ contentAlign: "center", paddingLeft: "30px" , paddingTop: "30px" }}><Link to= {{ pathname: '/Tumorboarddetails', state: { tbid: user.tbid } }}><i class="fa fa-info-circle" style={{ color: "blue" }} aria-hidden="true"></i></Link></td></tr>
+                                            )}
+                                    </tbody>
+                                </table>
+                            </div>  
+                        </div>
+
+                        <div id="tabnotification"  style={{ display: "none" }}>
+                        <div id="content_header"><h3>Create New Tumorboard</h3></div>
                             <div
                                 id="container"
                                 className="theme theme_font_neoskeuo theme_space_neoskeuo theme_color_neoskeuo"
@@ -275,9 +348,11 @@ class Doctor extends react.Component {
                                             <div style={{ display: "flex" }}>
                                                 <div className="w_sec w_sec_select_50">
                                                     <h5>Patient ID/Mobile No*</h5>
-                                                    <ReactSearchBox
-                                                        className="select" name="patient_id_fk"
-                                                        placeholder="Search for Patient ID"
+                                                    <div>
+                                                    <ReactSearchBox 
+                                                    //style={{borderRadius: '20px', paddingTop: '48px'}}
+                                                        type="text" name="patientIdFk"
+                                                        placeholder="Search for Patient ID" 
                                                         data={this.state.patientsList}
                                                         onSelect={record => console.log("selected:" + record)}
                                                         onFocus={() => {
@@ -287,8 +362,8 @@ class Doctor extends react.Component {
                                                         fuseConfigs={{
                                                             threshold: 0.05,
                                                         }}
-
                                                     />
+                                                    </div>
                                                 </div>
 
                                                 <div className="w_sec w_sec_select_50">
@@ -345,9 +420,9 @@ class Doctor extends react.Component {
                                             <div className="w_sec w_sec_select_50">
                                                 <h5>Priority</h5>
                                                 <select id="priority" className="select" name="priority" value={this.state.priority} onChange={this.handleInputChange}>
-                                                    <option value={1}>High</option>
-                                                    <option value={2}>Medium</option>
-                                                    <option value={3} selected>Regular</option>
+                                                    <option selected>Regular</option>
+                                                    <option>Medium</option>
+                                                    <option >High</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -390,7 +465,7 @@ class Doctor extends react.Component {
                                             }
                                         </select>
                                     </div>
-                                   
+
                                     <div className="w_sec w_sec_select_50" style={{ width: '75%' }}>
                                         <h5>Attending Doctors*</h5>
                                         <select className="select" style={{ width: '300px' }} id="attending_doc" name="attending_doc" multiple={true} value={this.state.attending_doc} onChange={this.handleChangeAttendingDoc}>
@@ -418,93 +493,8 @@ class Doctor extends react.Component {
                                 <button onClick={this.handleSubmit}>Submit</button>
                             </div>
 
-                        </div>
-                        <div id="tablistTB">
-                            <div id="content_header">
-                                <h3 className="text-left">TumorBoard meetings</h3>
-                                <table class="table shadow-soft rounded">
-                                    <thead>
-                                        <tr style={{ textAlign: "center", fontWeight: "bolder", color: "#3498DB" }}>
-                                            <td scope="row" > ID </td>
-                                            <td scope="row"> Type </td>
-                                            <td scope="row"> PatientID/Name </td>
-                                            <td scope="row"> Date & Time </td>
-                                            <td scope="row"> Presenting Doctor </td>
-                                            <td scope="row"> Purpose </td>
-                                            <td scope="row"> Priority </td>
-                                            <td scope="row">Join Meeting </td>
-                                            <td scope="row"> Presentation </td>
-                                            <td scope="row"> AI Opinion </td>
-                                            <td scope="row"> Status </td>
-                                            <td scope="row">Details</td>
+                        
 
-
-                                        </tr>
-
-                                    </thead>
-                                    <tbody style={{ fontWeight: "bold" }}>
-                                        {
-                                            this.state.result.map(
-                                                user =>
-                                                    <tr key={user.tbid}>
-                                                        <td> {user.tbid}</td>
-                                                        <td> {user.name}</td>
-                                                        <td> {user.patient_id_fk}/{user.patientname}</td>
-                                                        <td> {user.start_time}</td>
-                                                        <td> {user.doctorName}</td>
-                                                        <td> {user.purpose}</td>
-                                                        <td style={{ textAlign: "center" }}> {user.priority}</td>
-                                                        <td style={{ contentAlign: "center", paddingLeft: "50px" }}><a href={user.video_link} target="_blank"> {user.video_link != "" && <i class="fa fa-video-camera" aria-hidden="true"></i>}</a></td>
-                                                        <td> {user.presentationlink}</td>
-
-                                                        <td> {user.aiopinionlink}</td>
-                                                        <td> {user.status}</td>
-                                                        <td style={{ contentAlign: "center", paddingLeft: "50px" }}><i class="fa fa-info-circle" style={{ color: "blue" }} aria-hidden="true"></i></td>
-                                                    </tr>
-                                            )
-                                        }
-
-                                    </tbody>
-                                </table>
-
-                            </div>
-
-
-
-                        </div>
-
-                        <div id="tabnotification" style={{ display: "none" }}>
-                            <div id="content_header">
-                                <h3 className="text-left">Notification</h3>
-                            </div>
-                            <table class="table shadow-soft rounded">
-                                <thead>
-                                    <tr>
-                                        <td scope="row">
-                                            <b> Patient ID </b>
-                                        </td>
-                                        <td scope="row">
-                                            <b> Tumor Board </b>
-                                        </td>
-                                        <td scope="row">
-                                            <b> Date&Time </b>
-                                        </td>
-                                        <td scope="row">
-                                            <b> Assigned By</b>
-                                        </td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {this.state.result.map((user) => (
-                                        <tr key={user.tbid}>
-                                            <td> {user.tbid}</td>
-                                            <td> {user.name}</td>
-                                            <td> {user.start_time}</td>
-                                            <td> </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
                         </div>
                         <div id="tababc"></div>
                     </div>

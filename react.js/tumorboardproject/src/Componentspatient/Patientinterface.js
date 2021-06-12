@@ -1,22 +1,10 @@
 import react from "react";
-import SpringApiUrl from "../services/UserServiceApi";
-import SpringApiTimelineRecordsListUrl from "../services/PatientTimelineRecords"
 import ReactSearchBox from 'react-search-box';
 import axios from "axios";
+import moment from 'moment-timezone';
 import dateFormat from 'dateformat';
 import SpringPatientsListApiUrl from '../services/PatientsList';
-//onChange={this.patientChange}
-import CancerinfoUrl from '../services/CancerinfoUrl';
-import FamilyMedicalHisUrl from '../services/FamilyMedHis';
-import TumorInfoUrl from '../services/Tumorinfourl';
-import PhysicalExaminationUrl from '../services/PhysicalExamUrl';
-import BiomarkersUrl from '../services/BiomarkersUrl';
-import MedicationsUrl from '../services/MedicationsUrl';
-import PastmedicalhistoryUrl from '../services/Pastmedicalhistory';
-import ComorbiditiesUrl from '../services/ComorbiditiesUrl';
-import AllergiesUrl from '../services/AllergiesUrl';
-import PatientdetailsUrl from '../services/PatientdetailsUrl';
-import PatientIllnessUrl from '../services/PatientIllnessUrl';
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 
 class Patient extends react.Component {
   constructor(props) {
@@ -33,24 +21,19 @@ class Patient extends react.Component {
       famedhis: [],
       tumorinfo: [],
       physicalexamin: [],
+      start_time: (moment()),
       biomark: [],
       medication: [],
       pastmedhi: [],
       pastmedhistory:[],
       como: [],
       All: [],
-      ptname: "",
+      ptname:"",
       ptgender: "",
-<<<<<<< HEAD
-      ptage: 0,
-      ptlocation: "",
-      pthospital: ""
-=======
       ptage:0,
       ptlocation:"",
       pthospital:"",
       ptid: ""
->>>>>>> c713e0e (Inital commit)
     };
     this.clicked = this.clicked.bind(this);
     this.patientChange = this.patientChange.bind(this);
@@ -86,31 +69,16 @@ class Patient extends react.Component {
 
   componentDidMount() {
 
-    // const { match: { params } } = this.props;
-    //console.log({params.patientIdFk})
-  //axios.get(`/api/patient/${params.patientIdFk}`)
-  //  .then(({ data: user }) => {
-  //    console.log('user', user);
-
-    //  this.setState({ user });
-   // });
-
     SpringPatientsListApiUrl.getApi().then((response) => {
       this.setState({ patientsList: response.data })
     });
     if (this.props.location.state == undefined)
       return;
-<<<<<<< HEAD
-    this.patientChange();
-  }
-  
-=======
       
     this.patientChange();
   }
   
 
->>>>>>> c713e0e (Inital commit)
   activateMenuItem(id) {
     if (this.state.patientSelected == 0) {
       alert("No Patient Selected");
@@ -153,16 +121,10 @@ class Patient extends react.Component {
       x = this.props.location.state.patientID;
     }
     else x = event.value;
-<<<<<<< HEAD
-
-
-    fetch('http://localhost:8080/cancerMoonshot/getPatientDetailsByID?id=' + x)
-=======
 
     //${params.id}
 
     fetch('https://tumorboard-308606.el.r.appspot.com/getPatientDetailsByID?id=' + x)
->>>>>>> c713e0e (Inital commit)
       .then(response => response.json())
       .then((data) => {
         this.setState({ patientSelected: event });
@@ -174,30 +136,27 @@ class Patient extends react.Component {
         }
         console.log("Patient name,type: " + data.name + "" + data.cancertype)
         console.log("X:" + x)
-        axios.get('http://localhost:8080/cancerMoonshot/threcordsByID?id=' + x)
+        axios.get('https://tumorboard-308606.el.r.appspot.com/threcordsByID?id=' + x)
           .then(res => {
             const th = res.data;
             this.setState({ threcords: th });
           })
-        axios.get('http://localhost:8080/cancerMoonshot/timelineByID?id=' + x)
+        axios.get('https://tumorboard-308606.el.r.appspot.com/timelineByID?id=' + x)
           .then(res => {
             const timeline = res.data;
             this.setState({ timelinerecords: timeline });
           })
 
-        axios.get('http://localhost:8080/cancerMoonshot/getallergies?id=' + x)
+        axios.get('https://tumorboard-308606.el.r.appspot.com/getallergies?id=' + x)
           .then(res => {
             const allergies = res.data;
             this.setState({ All: allergies })
           })
 
-        axios.get('http://localhost:8080/cancerMoonshot/getPatientDetailsByID?id=' + x)
+        axios.get('https://tumorboard-308606.el.r.appspot.com/getPatientDetailsByID?id=' + x)
           .then(res => {
             const pdetails = res.data;
-<<<<<<< HEAD
-=======
             this.setState({ ptid: pdetails.id })
->>>>>>> c713e0e (Inital commit)
             this.setState({ ptname: pdetails.name })
             this.setState({ ptage: pdetails.age })
             this.setState({ ptgender: pdetails.gender })
@@ -205,21 +164,18 @@ class Patient extends react.Component {
             this.setState({ pthospital: pdetails.hospital })
           })
 
-        axios.get('http://localhost:8080/cancerMoonshot/getcomorbidities?id=' + x)
+        axios.get('https://tumorboard-308606.el.r.appspot.com/getcomorbidities?id=' + x)
           .then(res => {
             const getcomorbidities = res.data;
             this.setState({ como: getcomorbidities })
           })
 
-        axios.get('http://localhost:8080/cancerMoonshot/timelineByID?id=' + x)
+        axios.get('https://tumorboard-308606.el.r.appspot.com/timelineByID?id=' + x)
           .then(res => {
             const pdetails = res.data;
             this.setState({ pastmedhi: pdetails })
           })
 
-<<<<<<< HEAD
-        axios.get('http://localhost:8080/cancerMoonshot/getmedications?id=' + x)
-=======
           axios.get('https://tumorboard-308606.el.r.appspot.com/getpastmedicalhistory?id=' + x)
           .then(res => {
             const pdetails = res.data;
@@ -227,43 +183,42 @@ class Patient extends react.Component {
           })
 
         axios.get('https://tumorboard-308606.el.r.appspot.com/getmedications?id=' + x)
->>>>>>> c713e0e (Inital commit)
           .then(res => {
             const pdetails = res.data;
             this.setState({ medication: pdetails })
           })
 
-        axios.get('http://localhost:8080/cancerMoonshot/getbiomarkers?id=' + x)
+        axios.get('https://tumorboard-308606.el.r.appspot.com/getbiomarkers?id=' + x)
           .then(res => {
             const pdetails = res.data;
             this.setState({ biomark: pdetails })
           })
 
-        axios.get('http://localhost:8080/cancerMoonshot/getphysicalexamination?id=' + x)
+        axios.get('https://tumorboard-308606.el.r.appspot.com/getphysicalexamination?id=' + x)
           .then(res => {
             const pdetails = res.data;
             this.setState({ physicalexamin: pdetails })
           })
 
-        axios.get('http://localhost:8080/cancerMoonshot/gettumorinformation?id=' + x)
+        axios.get('https://tumorboard-308606.el.r.appspot.com/gettumorinformation?id=' + x)
           .then(res => {
             const pdetails = res.data;
             this.setState({ tumorinfo: pdetails })
           })
 
-        axios.get('http://localhost:8080/cancerMoonshot/getfamilymedicalhistory?id=' + x)
+        axios.get('https://tumorboard-308606.el.r.appspot.com/getfamilymedicalhistory?id=' + x)
           .then(res => {
             const pdetails = res.data;
             this.setState({ famedhis: pdetails })
           })
 
-        axios.get('http://localhost:8080/cancerMoonshot/getcancerinfo?id=' + x)
+        axios.get('https://tumorboard-308606.el.r.appspot.com/getcancerinfo?id=' + x)
           .then(res => {
             const pdetails = res.data;
             this.setState({ caninfo: pdetails })
           })
 
-        axios.get('http://localhost:8080/cancerMoonshot/getpatientillness?id=' + x)
+        axios.get('https://tumorboard-308606.el.r.appspot.com/getpatientillness?id=' + x)
           .then(res => {
             const pdetails = res.data;
             this.setState({ result: pdetails })
@@ -278,10 +233,17 @@ class Patient extends react.Component {
   };
 
   render() {
+     const yesterday = moment().subtract(1, 'day');
+        const disablePastDt = current => {
+            return current.isAfter(yesterday);
+        };
+
+        const customDates = ['2021-04-22', '2021-04-25', '2021-04-26'];
+        const disableCustomDt = current => {
+            return !customDates.includes(current.format('YYYY-MM-DD'));
+        }
     return (
       <div>
-<<<<<<< HEAD
-=======
         <div id="header" style={{ background: '#eee' }}>
                  
           <div id="sub_header">
@@ -301,7 +263,6 @@ class Patient extends react.Component {
           </div>
         
                 </div>
->>>>>>> c713e0e (Inital commit)
         <div id="container" style={{ width: "100%", display: "flex" }}>
           <div id="first_row">
             <div
@@ -375,18 +336,6 @@ class Patient extends react.Component {
               <div id="summ">
                 <div className="neumorphic-cardd" style={{ display: 'table' }}>
                   <div id="patientdetails">
-<<<<<<< HEAD
-
-                    <div style={{ display: 'flex' }}>
-                      <div style={{ paddingRight: '10px' }}><b> {this.state.ptname}</b></div>
-                      <div style={{ paddingRight: '10px' }}> {this.state.ptage}</div>
-                      <div style={{ paddingRight: '10px' }}> {this.state.ptgender}</div>
-                      <div style={{ paddingRight: '10px' }}> {this.state.ptlocation}</div>
-                      <div> {this.state.pthospital}</div>
-
-                    </div>
-
-=======
                       <div style={{ display: 'flex' }}>
                         <div style={{ paddingRight: '10px' }}><b> {this.state.ptid}</b></div>
                         <div style={{ paddingRight: '10px' }}><b> {this.state.ptname}</b></div>
@@ -395,7 +344,6 @@ class Patient extends react.Component {
                         <div style={{ paddingRight: '10px' }}> {this.state.ptlocation}</div>
                         <div> {this.state.pthospital}</div>
                       </div>
->>>>>>> c713e0e (Inital commit)
                   </div>
                 </div>
 
@@ -516,10 +464,6 @@ class Patient extends react.Component {
                       </div>
                     </div>
                   </div>
-<<<<<<< HEAD
-
-=======
->>>>>>> c713e0e (Inital commit)
                 </div>
               </div>
             </div>

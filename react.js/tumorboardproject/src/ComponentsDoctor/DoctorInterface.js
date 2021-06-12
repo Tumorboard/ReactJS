@@ -98,6 +98,9 @@ class Doctor extends react.Component {
             this.setState({ todaysTBList: response.data })
         });
 
+       
+        
+
     }
 
     activateMenuItem(id) {
@@ -121,11 +124,7 @@ class Doctor extends react.Component {
 
    
  patientChange = event => {
-        //alert(event) ;
-        //   if (event.charCode === 13) {
         this.setState({ patientIdFk: event });
-        //  }
-        // {this.setState({name: data.cancertype});}
         fetch('https://tumorboard-308606.el.r.appspot.com/getPatientDetailsByID?id=' + event)
             .then(response => response.json())
             .then((data) => {
@@ -134,15 +133,13 @@ class Doctor extends react.Component {
 
                 console.log("Patient name,type: " + data.name + "" + data.cancertype)
                 
-                // document.getElementById("alertText").style.display = "none";
             })
             .catch(e => {
                 console.log("error: " + e);
                 alert("This Patient ID does not exist in the system");
                 this.setState({ patientIdFk: 0 });
                 this.setState({ tbtype: "General" });
-                //   document.getElementById("alertText").style.display = "block";
-                // this.setState({...this.state, isFetching: false});
+                
             });
     };
 
@@ -205,7 +202,7 @@ class Doctor extends react.Component {
                 }
             })
             .then(json => console.log(json));
-        //.catch(err => console.log(err)); 
+        
     };
 
     
@@ -260,6 +257,7 @@ class Doctor extends react.Component {
                                             <td scope="row"> PID/Name </td>
                                             <td scope="row"> Date & Time </td>
                                             <td scope="row"> Presenting Doctor </td>
+                                            <td scope="row"> Priority </td>
                                             <td scope="row">Join Meeting </td>
                                             <td scope="row"> Presentation </td>
                                             <td scope="row"> Status </td>
@@ -276,9 +274,10 @@ class Doctor extends react.Component {
                                                         <td> {user.tbid}</td>
                                                         <td> {user.name}</td>
                                                         <td ><Link to={{pathname:'/patient/'+ user.patientIdFk ,state: { patientID: user.patientIdFk } }} className="btn btn-primary">{user.patientIdFk}/{user.patientname}</Link></td>
-                                                         <td> {user.start_time,dateFormat(user.start_time, "mmmm dS , hh:mm TT")}</td>
+                                                         <td> {user.start_time,dateFormat(user.start_time, "mmmm dS yyyy, hh:mm TT")}</td>
                                                         <td> {user.doctorName}</td>
-                                                         <td style={{ contentAlign: "center", paddingLeft: "50px" }}><a href={user.video_link} target="_blank"> {user.video_link != "" && <i class="fa fa-video-camera" aria-hidden="true"></i>}</a></td>
+                                                        <td>{user.priority}</td>
+                                                        <td style={{ contentAlign: "center", paddingLeft: "50px" }}><a href={user.video_link} target="_blank"> {user.video_link != "" && <i class="fa fa-video-camera" aria-hidden="true"></i>}</a></td>
                                                         <td> {user.presentationlink}</td>
                                                         <td> {user.status}</td>
                                                         <td> {user.aiopinionlink}</td>
@@ -319,7 +318,7 @@ class Doctor extends react.Component {
                                                         <td> {user.name}</td>
                                                         <td><Link to={{ pathname: '/patient', state: { patientID: user.patientIdFk } }} className="btn btn-primary"> {user.patientIdFk}/{user.patientname}</Link></td>
                                                         <td> {user.start_time,dateFormat(user.start_time, "mmmm dS , hh:mm TT")}</td>
-                                                        <td> {user.doctorName}</td>
+                                                         <td> {user.doctorName}</td>
                                                         <td> {user.purpose}</td>
                                                         <td style={{ contentAlign: "center", paddingLeft: "50px" }}><a href={user.video_link} target="_blank"> {user.video_link != "" && <i class="fa fa-video-camera" aria-hidden="true"></i>}</a></td>
                                                         <td> {user.presentationlink}</td>
@@ -382,10 +381,8 @@ class Doctor extends react.Component {
                                         <div style={{ display: "flex" }}>
                                             <div className="w_sec w_sec_select_50">
                                                 <h5>Date*</h5>
-
                                                 <DatePicker id="start_time" name="start_time" value={this.state.start_time} isValidDate={disablePastDt} minDate={new Date(2021, 4, 27)} onChange={this.Changedate} />
                                             </div>
-
                                             <div className="w_sec w_sec_select_50">
                                                 <h5>Duration</h5>
                                                 <select className="select" id="duration" name="duration" value={this.state.duration} onChange={this.handleInputChange}>

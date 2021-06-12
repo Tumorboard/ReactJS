@@ -19,6 +19,7 @@ class TumorboardDetails extends react.Component {
             nursenav: "",
             priority: "",
             patientIdFk: 0,
+            inserted_time:"",
             patientName: "",
             feedback: "",
             nurse: [],
@@ -26,7 +27,7 @@ class TumorboardDetails extends react.Component {
             start_time:"",
             name:"",
             tbid:"",
-            status:"REQUESTED",
+            status:"REQUESTED" 
         };
 
          this.handledeleteStatus = this.handledeleteStatus.bind(this);
@@ -53,12 +54,13 @@ class TumorboardDetails extends react.Component {
           this.setState({ status: pdetails.status })
           this.setState({ presenting_doc: pdetails.presenting_doc })
           this.setState({ attending_doc: pdetails.attending_doc })
+          this.setState({ inserted_time: pdetails.inserted_time })
            })
-
+           
         axios.get('https://tumorboard-308606.el.r.appspot.com/getDoctorsDetailsByPatientId?patientId='+ x)
         .then(res => {
           const pdetails = res.data;
-          this.setState({ attending_doc: pdetails.attending_doc })
+          this.setState({ attending_doc: pdetails})
         })
     }
 
@@ -80,7 +82,8 @@ class TumorboardDetails extends react.Component {
             frequency_in_days: this.state.frequency_in_days,
             status: "DELETED",
             presenting_doc: this.state.presenting_doc,
-            attending_doc: this.state.attending_doc
+            attending_doc: this.state.attending_doc,
+            inserted_time:this.state.inserted_time
         }
             
         fetch('https://tumorboard-308606.el.r.appspot.com/update/' + this.state.tbid, {
@@ -102,10 +105,9 @@ class TumorboardDetails extends react.Component {
     };
     
     render() {
-                const yesterday = moment().subtract(1, 'day');
-                const disablePastDt = current => {
-              return current.isAfter(yesterday);
-              };
+        
+        
+
         return (
             <div>
                 <div id="header" style={{ background: '#eee' }}>
@@ -144,10 +146,14 @@ class TumorboardDetails extends react.Component {
                                                         <div  style={{ width:"100%"}}> <b>Priority: </b>{this.state.priority}</div>
                                                         </div>
                                                         <div style={{ }} className="neumorphic-cardd">
+                                                        <div  style={{ width:"100%"}}> <b>Created Date & Time:</b>{this.state.inserted_time}</div>
                                                         <div  style={{ width:"100%"}}> <b>TumorBoard Type:</b> {this.state.name}</div>
                                                         <div  style={{ width:"100%"}}>  <b>Presenting Doctor:</b>{this.state.doctorName}</div>
                                                         <div  style={{ width:"100%"}}> <b> Attending Doctor:</b>{this.state.attending_doc}</div>
+                                                        <div  style={{ width:"100%"}}> <b>Created by:</b>Mary</div>
                                                         <div><b>AI Opinion:</b></div>
+                                                        <div><b>Notes:</b></div>
+                                                        <div><b>Video link:</b>{this.state.video_link}</div>
                                                         <div  style={{ width:"100%"}}> <b>Point of Discussion:</b>Patient Presents with severe hypercalceminia and diffuse hypercalceminia </div>
                                                        
                                                         <div  style={{ width:"100%"}}> <b>Mode:</b> <a href={this.state.video_link} target="_blank"> {this.state.video_link != "" && <i class="fa fa-video-camera" aria-hidden="true"></i>}</a></div>

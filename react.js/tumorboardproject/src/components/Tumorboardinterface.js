@@ -11,17 +11,9 @@ import 'react-datetime/css/react-datetime.css';
 import ReactSearchBox from 'react-search-box';
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 
-//https://stackoverflow.com/questions/56017457/react-select-multi-select-check-box-with-select-all
-// <--input name="patientIdFk" type="text" id="patientIdFk" value={this.state.patientIdFk} onChange={this.handleInputChange} onKeyPress={this.onKeyUp} /-->
-
-
 class Tumorboard extends react.Component {
 
-
-    // const [dt, setDt] = useState(moment());
-
     constructor(props) {
-
         var abc = "yes";
         super(props)
         this.state = {
@@ -40,10 +32,8 @@ class Tumorboard extends react.Component {
             status: "REQUESTED",
             priority: 3,
             frequency_in_days: 0,
-            //notes :$("#videoLink").val(),
-            inserted_time: "2018-06-06 12:12:12",
+             inserted_time: "2018-06-06 12:12:12",
             updated_time: "2018-06-06 12:12:12",
-
             patientIdFk: "",
             presenting_doc: "",
             attending_doc: [],
@@ -54,15 +44,13 @@ class Tumorboard extends react.Component {
             videolinkdisabled: false,
             values: [],
             tasks: []
-
         };
+
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleChangeAttendingDoc = this.handleChangeAttendingDoc.bind(this);
         this.patientChange = this.patientChange.bind(this);
          this.handleDeleteRow = this.handleDeleteRow.bind(this);
-
     }
-
 
 handleDeleteRow(i) {
     let rows = [this.state.rows]
@@ -70,24 +58,19 @@ handleDeleteRow(i) {
     this.setState({ 
       rows: rows
     })
-    alert('hello')
   }
+
     Changedate = (event) => {
         this.setState({
             start_time: event
         });
     };
 
-
-
     handleInputChange(event) {
-
         const target = event.target;
-        // alert("name:"+target.name) ;
         const value = target.value;
         const name = target.name;
-        // alert(target + "  "+ name + "   "+value);
-        if ((name == "mode") && (value != "VIDEO")) {
+         if ((name == "mode") && (value != "VIDEO")) {
             this.setState({ videolinkdisabled: true })
         } else if ((name == "mode") && (value == "VIDEO")) {
             this.setState({ videolinkdisabled: false })
@@ -108,9 +91,6 @@ handleDeleteRow(i) {
         this.setState({ attending_doc: value });
     }
 
-
-
-
     componentDidMount() {
         SpringApiUrl.getApi().then((response) => {
             this.setState({ result: response.data })
@@ -123,10 +103,8 @@ handleDeleteRow(i) {
         SpringPatientsListApiUrl.getApi().then((response) => {
             this.setState({ patientsList: response.data })
         });
-
-
-    }
-
+  }
+  
     activateMenuItem(id) {
         const div = document.getElementById(id);
         if (id == "listTB") {
@@ -149,21 +127,15 @@ handleDeleteRow(i) {
     };
 
     patientChange = event => {
-        //alert(event) ;
-        //   if (event.charCode === 13) {
         this.setState({ patientIdFk: event });
-        //  }
-        // {this.setState({name: data.cancertype});}
-        fetch('https://tumorboard-308606.el.r.appspot.com/getPatientDetailsByID?id=' + event)
+         fetch('https://tumorboard-308606.el.r.appspot.com/getPatientDetailsByID?id=' + event)
             .then(response => response.json())
             .then((data) => {
                 { this.setState({ tbtype: data.cancertype }); 
             this.setState({ presenting_doc: data.owning_doctor});}
 
                 console.log("Patient name,type: " + data.name + "" + data.cancertype)
-                
-                // document.getElementById("alertText").style.display = "none";
-            })
+                 })
             .catch(e => {
                 console.log("error: " + e);
                 alert("This Patient ID does not exist in the system");
@@ -174,27 +146,19 @@ handleDeleteRow(i) {
             });
     };
 
-
-
     handleSubmit = event => {
-        //   alert("id:" + this.state.patientIdFk);
-
         if (this.state.patientIdFk == 0) {
             alert("Please enter a valid Patient ID !!");
             return;
         }
-
-
         if (this.state.patientIdFk == "") {
             alert("Please enter Patient ID !!");
             return;
         }
-
         if ((this.state.mode == "VIDEO") && (this.state.video_link == "")) {
             alert("Please enter link for Video Conference !!");
             return;
         }
-
         event.preventDefault();
         const requestOptions = {
             method: 'POST',

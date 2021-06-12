@@ -138,8 +138,6 @@ class CheckConclusion extends react.Component {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-
-
             type: this.state.type,
             notes: this.state.notes,
             nextaction: this.state.nextaction,

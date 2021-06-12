@@ -33,7 +33,7 @@ class Edit extends react.Component {
             location: "",
             video_link: "",
             status: "COMPLETED",
-            priority: 3,
+            priority: "",
             frequency_in_days: 0,
             inserted_time: "2018-06-06 12:12:12",
             updated_time: "2018-06-06 12:12:12",
@@ -83,10 +83,7 @@ class Edit extends react.Component {
         this.setState({ attending_doc: value });
     }
 
-    componentDidMount() {
-        
-        //alert( this.props.location.state.tbid);
-       
+    componentDidMount() { 
         var x =  this.props.location.state.tbid;
         this.setState({tbid:this.props.location.state.tbid})
         
@@ -111,8 +108,9 @@ class Edit extends react.Component {
           this.setState({ tbtype: pdetails.name })
           this.setState({ duration: pdetails.duration })
           this.setState({ purpose: pdetails.purpose })
-          this.setState({ start_time: pdetails.start_time })
+          this.setState({ start_time: pdetails.start_time})
           this.setState({ mode: pdetails.mode })
+           this.setState({ priority: pdetails.priority })
           this.setState({ video_link: pdetails.video_link })
           this.setState({ status: pdetails.status })
           this.setState({ location: pdetails.location })
@@ -120,16 +118,16 @@ class Edit extends react.Component {
           this.setState({ presenting_doc: pdetails.presenting_doc })
           this.setState({ attending_doc: pdetails.attending_doc })
           this.setState({ patientname: pdetails.patientname })
-
         })
     }
-    
 
     activateMenuItem(id) {
         const div = document.getElementById(id);
         if (id == "listTB") {
             window.location.reload(false);
+
         }
+        
         document.getElementById("listTB").classList.remove('active');
         document.getElementById("createTB").classList.remove('active');
         document.getElementById("notification").classList.remove('active');
@@ -153,6 +151,7 @@ class Edit extends react.Component {
             start_time: this.state.start_time,
             duration: this.state.duration,
             mode: this.state.mode,
+            priority:this.state.priority,
             location: this.state.location,
             video_link: this.state.video_link,
             status: this.state.status,
@@ -162,9 +161,9 @@ class Edit extends react.Component {
             attending_doc: this.state.attending_doc.toString(),
             
         }
-            
         fetch('https://tumorboard-308606.el.r.appspot.com/update/' + this.state.tbid, {
             method: "PUT",
+            mode:"cors",
             body: JSON.stringify(requestOptions),
             headers: { "Content-type": "application/json; charset=UTF-8", "Access-Control-Allow-Origin": "*" }
         })
@@ -183,18 +182,7 @@ class Edit extends react.Component {
     };
 
     render() {
-        // disable past dates
-        const yesterday = moment().subtract(1, 'day');
-        const disablePastDt = current => {
-            return current.isAfter(yesterday);
-        };
-
-        const customDates = ['2021-04-22', '2021-04-25', '2021-04-26'];
-        const disableCustomDt = current => {
-            return !customDates.includes(current.format('YYYY-MM-DD'));
-        }
-
-
+       
         return (
             <div>
                 <div id="header" style={{ background: '#eee' }}>
@@ -205,7 +193,7 @@ class Edit extends react.Component {
             </div>
             <div id="header_sec_2">
               <div id="header_buttons">
-               <Link to="/doctor"><button id="back">Home</button></Link>
+               <Link to="/doctor"><button  id="back">Home</button></Link>
             
                 </div>
             </div>
@@ -250,9 +238,14 @@ class Edit extends react.Component {
                                         <div style={{ display: "flex" }}>
                                             <div className="w_sec w_sec_select_50">
                                                 <h5>Date*</h5>
+                                                <DatePicker  id="start_time" name="start_time" 
+                                                value={this.state.start_time} 
+                                                   minDate={new Date(27,4,2021)} 
+                                               // minDate={(new Date()).toLocaleDateString('en-US', customDates)}
+                                                onChange={this.Changedate} />
 
-                                                <DatePicker id="start_time" name="start_time" value={this.state.start_time} isValidDate={disablePastDt} minDate={new Date(2021, 4, 27)} onChange={this.Changedate} />
                                             </div>
+                                               
 
                                             <div className="w_sec w_sec_select_50">
                                                 <h5>Duration</h5>
